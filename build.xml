@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Build File" basedir="." default="build">
+	
+	<!-- file description -->
+	<description>Build Script</description>
+	
+	<!--location of property file -->
+	<property file="${basedir}/build.properties" description="properities for builds" />
+	<property file="${basedir}/base.properties" description="properities for builds" />
+	
+	<!-- additional tasks -->
+	<taskdef name="mxmlc" classname="flex.ant.MxmlcTask" classpath="${FLEX_TASKS}"/>
+	<taskdef name="compc" classname="flex.ant.CompcTask" classpath="${FLEX_TASKS}"/>
+	<taskdef name="asdoc" classname="flex.ant.AsDocTask" classpath="${FLEX_TASKS}"/>
+	
+	<target name="build" description="compiles application">
+		<antcall target="init"/>
+		<antcall target="package"/>
+		<antcall target="cleanup"/>
+	</target>
+	
+	<target name="test" depends="compile"
+		description="Run the AIR app in test mode.">
+		<exec executable="${ADL}">
+			<arg value="${APP_DESCRIPTOR}"/>
+		</exec>
+	</target>
+	
+	<target name="compile"
+		description="Compiles the AIR application to a SWF file and places SWF in a temp directory to be packaged.">
+		<mxmlc file="${MAIN_SOURCE_FILE}"
+			output="${BUILD_DIR}/${APP_ROOT_FILE}"
+			locale="${LOCALE}"
+			static-rsls="false"
+			accessible="true"
+			configname="air"
+			debug="${DEBUG_FLAG}"
+			failonerror="true"
+			fork="true"
+			maxmemory="512m">
+			<source-path path-element="${SOURCE_DIR}"/>
+
+			<runtime-shared-library-path path-element="${FLEX_HOME}/frameworks/libs/textLayout.swc">
+				<url rsl-url="http://fpdownload.adobe.com/pub/swz/tlf/1.0.0.595/textLayout_1.0.0.595.swz" policy-file-url="http://fpdownload.adobe.com/pub/swz/crossdomain.xml"/>
+				<url rsl-url="textLayout_1.0.0.595.swz" policy-file-url=""/>
+			</runtime-shared-library-path>
+			<runtime-shared-library-path path-element="${FLEX_HOME}/frameworks/libs/osmf.swc">
+				<url rsl-url="http://fpdownload.adobe.com/pub/swz/flex/${SDK_VERSION}/osmf_flex.4.0.0.13495.swz" policy-file-url="http://fpdownload.adobe.com/pub/swz/crossdomain.xml"/>
+				<url rsl-url="osmf_flex.4.0.0.13495.swz" policy-file-url=""/>
+			</runtime-shared-library-path>
+			<runtime-shared-library-path path-element="${FLEX_HOME}/frameworks/libs/framework.swc">
+				<url rsl-url="http://fpdownload.adobe.com/pub/swz/flex/${SDK_VERSION}/framework_${SDK_VERSION}.swz" policy-file-url="http://fpdownload.adobe.com/pub/swz/crossdomain.xml"/>
+				<url rsl-url="framework_${SDK_VERSION}.swz" policy-file-url=""/>
+			</runtime-shared-library-path>
+			<runtime-shared-library-path path-element="${FLEX_HOME}/frameworks/libs/spark.swc">
+				<url rsl-url="http://fpdownload.adobe.com/pub/swz/flex/${SDK_VERSION}/spark_${SDK_VERSION}.swz" policy-file-url="http://fpdownload.adobe.com/pub/swz/crossdomain.xml"/>
+				<url rsl-url="spark_${SDK_VERSION}.swz" policy-file-url=""/>
+			</runtime-shared-library-path>
+			<runtime-shared-library-path path-element="${FLEX_HOME}/frameworks/libs/rpc.swc">
+				<url rsl-url="http://fpdownload.adobe.com/pub/swz/flex/${SDK_VERSION}/rpc_${SDK_VERSION}.swz" policy-file-url="http://fpdownload.adobe.com/pub/swz/crossdomain.xml"/>
+				<url rsl-url="rpc_${SDK_VERSION}.swz" policy-file-url=""/>
+			</runtime-shared-library-path>
+
+			<external-library-path file="${FLEX_HOME}/frameworks/libs/air/airglobal.swc" append="true"/>
+			<library-path file="${FLEX_HOME}/frameworks/libs/datavisualization.swc" append="true"/>
+			<library-path file="${FLEX_HOME}/frameworks/libs/flash-integration.swc" append="true"/>
+			<library-path file="${FLEX_HOME}/frameworks/libs/sparkskins.swc" append="true"/>
+			<library-path file="${FLEX_HOME}/frameworks/libs/utilities.swc" append="true"/>
+			<library-path file="${FLEX_HOME}/frameworks/libs/air/airframework.swc" append="true"/>
+			<library-path file="${FLEX_HOME}/frameworks/libs/air/airspark.swc" append="true"/>
+			<library-path file="${FLEX_HOME}/frameworks/libs/air/applicationupdater.swc" append="true"/>
+			<library-path file="${FLEX_HOME}/frameworks/libs/air/applicationupdater_ui.swc" append="true"/>
+			<library-path file="${FLEX_HOME}/frameworks/libs/air/servicemonitor.swc" append="true"/>
+
+			<library-path dir="${FLEX_HOME}/frameworks/locale/${LOCALE}" includes="*" append="true"/>
+			<library-path dir="${PROJECT_DIR}/libs" includes="*" append="true"/>
+		</mxmlc>
+	</target>
+	
+	<target name="certificate" unless="CERTIFICATE_FLAG">
+		<java jar="${ADT}" fork="true" 
+			failonerror="true">
+			<arg value="-certificate"/>
+			<arg value="-cn"/>
+			<arg value="${CERT_NAME}"/>
+			<arg value="-ou"/>
+			<arg value="${CERT_ORG_UNIT}"/>
+			<arg value="-o"/>
+			<arg value="${CERT_ORG_NAME}"/>
+			<arg value="-c"/>
+			<arg value="${CERT_COUNTRY}"/>
+			<arg value="${CERT_KEY_TYPE}"/>
+			<arg value="${KEYSTORE}"/>
+			<arg value="${CERT_PASSWORD}"/>
+		</java>
+	</target>
+	
+	<target name="package" depends="compile, certificate"
+		description="Packages the build SWF file from a temp directory.">
+		<java jar="${ADT}" fork="true" 
+			failonerror="true"
+			maxmemory="512m">
+			<arg value="-package"/>
+			<arg value="-storetype"/>
+			<arg value="${STORETYPE}"/>
+			<arg value="-keystore"/>
+			<arg value="${KEYSTORE}"/>
+			<arg value="-storepass"/>
+			<arg value="${CERT_PASSWORD}"/>
+			<arg value="${RELEASE_DIR}/${APP_NAME}.air"/>
+			<arg value="${APP_DESCRIPTOR}"/>
+			<arg value="-C"/>
+			<arg value="${BUILD_DIR}"/>
+			<arg value="${APP_ROOT_FILE}"/>
+			<arg value="-C"/>
+			<arg value="${SOURCE_DIR}"/>
+			<arg value="asset"/>
+		</java>
+	</target>
+	
+	<target name="init" depends="clean"
+	description="Cleans the deploy file">
+		<mkdir dir="${BUILD_DIR}"/>
+		<mkdir dir="${RELEASE_DIR}"/>
+		<available file="${KEYSTORE}" property="CERTIFICATE_FLAG"/>
+	</target>
+	
+	<target name="clean"
+		description="Cleans up old files.">
+		<delete dir="${BUILD_DIR}" failOnError="false" includeEmptyDirs="true" />
+		<delete dir="${RELEASE_DIR}" failOnError="false" includeEmptyDirs="true" />
+	</target>
+
+	<target name="cleanup"
+		description="Cleans up old files.">
+		<delete dir="${BUILD_DIR}" failOnError="false" includeEmptyDirs="true"/>
+	</target>
+
+	<target name="cleanasdoc"
+		description="Delete the existing output folder and files and then regenerate the output folder">
+		<delete dir="${ASDOC_DIR}" failOnError="false" includeEmptyDirs="true"/>
+		<mkdir dir="${ASDOC_DIR}"/>
+	</target>
+
+	<target name="asdoc" depends="cleanasdoc"
+		description="Run the ASDoc executable and generate the ASDocs to the new output folder">
+		<asdoc output="${ASDOC_DIR}" failonerror="true"
+			main-title="${ASDOC_MAIN_TITLE}"
+			window-title="${ASDOC_WINDOW_TITLE}"
+			footer="${ASDOC_FOOTER}">
+			<load-config filename="${FLEX_FRAMEWORKS}/air-config.xml"/>
+			<doc-sources path-element="${SOURCE_DIR}"/>
+			
+			<runtime-shared-library-path path-element="${FLEX_HOME}/frameworks/libs/textLayout.swc">
+				<url rsl-url="http://fpdownload.adobe.com/pub/swz/tlf/1.0.0.595/textLayout_1.0.0.595.swz" policy-file-url="http://fpdownload.adobe.com/pub/swz/crossdomain.xml"/>
+				<url rsl-url="textLayout_1.0.0.595.swz" policy-file-url=""/>
+			</runtime-shared-library-path>
+			<runtime-shared-library-path path-element="${FLEX_HOME}/frameworks/libs/osmf.swc">
+				<url rsl-url="http://fpdownload.adobe.com/pub/swz/flex/${SDK_VERSION}/osmf_flex.4.0.0.13495.swz" policy-file-url="http://fpdownload.adobe.com/pub/swz/crossdomain.xml"/>
+				<url rsl-url="osmf_flex.4.0.0.13495.swz" policy-file-url=""/>
+			</runtime-shared-library-path>
+			<runtime-shared-library-path path-element="${FLEX_HOME}/frameworks/libs/framework.swc">
+				<url rsl-url="http://fpdownload.adobe.com/pub/swz/flex/${SDK_VERSION}/framework_${SDK_VERSION}.swz" policy-file-url="http://fpdownload.adobe.com/pub/swz/crossdomain.xml"/>
+				<url rsl-url="framework_${SDK_VERSION}.swz" policy-file-url=""/>
+			</runtime-shared-library-path>
+			<runtime-shared-library-path path-element="${FLEX_HOME}/frameworks/libs/spark.swc">
+				<url rsl-url="http://fpdownload.adobe.com/pub/swz/flex/${SDK_VERSION}/spark_${SDK_VERSION}.swz" policy-file-url="http://fpdownload.adobe.com/pub/swz/crossdomain.xml"/>
+				<url rsl-url="spark_${SDK_VERSION}.swz" policy-file-url=""/>
+			</runtime-shared-library-path>
+			<runtime-shared-library-path path-element="${FLEX_HOME}/frameworks/libs/rpc.swc">
+				<url rsl-url="http://fpdownload.adobe.com/pub/swz/flex/${SDK_VERSION}/rpc_${SDK_VERSION}.swz" policy-file-url="http://fpdownload.adobe.com/pub/swz/crossdomain.xml"/>
+				<url rsl-url="rpc_${SDK_VERSION}.swz" policy-file-url=""/>
+			</runtime-shared-library-path>
+
+			<external-library-path file="${FLEX_HOME}/frameworks/libs/air/airglobal.swc" append="true"/>
+			<library-path file="${FLEX_HOME}/frameworks/libs/datavisualization.swc" append="true"/>
+			<library-path file="${FLEX_HOME}/frameworks/libs/flash-integration.swc" append="true"/>
+			<library-path file="${FLEX_HOME}/frameworks/libs/sparkskins.swc" append="true"/>
+			<library-path file="${FLEX_HOME}/frameworks/libs/utilities.swc" append="true"/>
+			<library-path file="${FLEX_HOME}/frameworks/libs/air/airframework.swc" append="true"/>
+			<library-path file="${FLEX_HOME}/frameworks/libs/air/airspark.swc" append="true"/>
+			<library-path file="${FLEX_HOME}/frameworks/libs/air/applicationupdater.swc" append="true"/>
+			<library-path file="${FLEX_HOME}/frameworks/libs/air/applicationupdater_ui.swc" append="true"/>
+			<library-path file="${FLEX_HOME}/frameworks/libs/air/servicemonitor.swc" append="true"/>
+
+			<library-path dir="${FLEX_HOME}/frameworks/locale/${LOCALE}" includes="*" append="true"/>
+			<external-library-path dir="${LIBRARIES_DIR}" includes="*" append="true"/>
+		</asdoc>
+	</target>
+
+	<target name="reporting">
+		<antcall target="initreporting"/>
+		<antcall target="pmd"/>
+		<antcall target="cpd"/>
+		<antcall target="metrics"/>
+	</target>
+
+	<target name="initreporting">
+		<delete dir="${REPORTS_DIR}" failOnError="false" includeEmptyDirs="true"/>
+		<mkdir dir="${REPORTS_DIR}"/>
+	</target>
+	
+	<taskdef name="flexPmd" classname="com.adobe.ac.pmd.ant.FlexPmdAntTask" classpath="${FLEX_PMD_DIR}/flex-pmd-ant-task-${FLEX_PMD_VERSION}.jar">
+		<classpath>
+		<pathelement location="${FLEX_PMD_DIR}/flex-pmd-ruleset-api-${FLEX_PMD_VERSION}.jar"/>
+            	<pathelement location="${FLEX_PMD_DIR}/flex-pmd-ruleset-${FLEX_PMD_VERSION}.jar"/>
+            	<pathelement location="${FLEX_PMD_DIR}/flex-pmd-core-${FLEX_PMD_VERSION}.jar"/>
+            	<pathelement location="${FLEX_PMD_DIR}/as3-plugin-utils-${FLEX_PMD_VERSION}.jar"/>
+            	<pathelement location="${FLEX_PMD_DIR}/as3-parser-${FLEX_PMD_VERSION}.jar"/>
+            	<pathelement location="${FLEX_PMD_DIR}/pmd-4.2.5.jar"/>
+            	<pathelement location="${FLEX_PMD_DIR}/commons-lang-2.4.jar"/>
+            	<pathelement location="${FLEX_PMD_DIR}/flex-pmd-files-${FLEX_PMD_VERSION}.jar"/>
+            	<pathelement location="${FLEX_PMD_DIR}/as3-parser-api-${FLEX_PMD_VERSION}.jar"/>
+            	<pathelement location="${FLEX_PMD_DIR}/plexus-utils-1.0.2.jar"/>
+		</classpath>
+	</taskdef>
+	<target name="pmd">
+		<flexPmd sourceDirectory="${SOURCE_DIR}" outputDirectory="${REPORTS_DIR}"/>
+	</target>
+	
+	<taskdef name="flexCpd" classname="com.adobe.ac.cpd.ant.FlexCpdAntTask" 
+		classpath="${FLEX_PMD_DIR}/flex-pmd-cpd-ant-task-${FLEX_PMD_VERSION}.jar">
+		<classpath>
+        	<pathelement location="${FLEX_PMD_DIR}/flex-pmd-files-${FLEX_PMD_VERSION}.jar" />
+         	<pathelement location="${FLEX_PMD_DIR}/flex-pmd-cpd-${FLEX_PMD_VERSION}.jar" />
+         	<pathelement location="${FLEX_PMD_DIR}/as3-plugin-utils-${FLEX_PMD_VERSION}.jar" />
+         	<pathelement location="${FLEX_PMD_DIR}/as3-parser-${FLEX_PMD_VERSION}.jar" />
+         	<pathelement location="${FLEX_PMD_DIR}/as3-parser-api-${FLEX_PMD_VERSION}.jar" />
+         	<pathelement location="${FLEX_PMD_DIR}/pmd-4.2.5.jar" />
+      		</classpath>
+	</taskdef>
+	<target name="cpd">
+		<flexCpd minimumTokenCount="50" outputFile="${REPORTS_DIR}/cpd.xml">
+          		<fileset dir="${SOURCE_DIR}">
+             		<include name="**/*.as"/>
+             		<include name="**/*.mxml"/>
+          		</fileset>
+       		</flexCpd>
+	</target>
+
+	<taskdef name="flexMetrics" classname="com.adobe.ac.pmd.metrics.ant.FlexMetricsAntTask"
+       		classpath="${FLEX_PMD_DIR}/flex-pmd-metrics-ant-task-${FLEX_PMD_VERSION}.jar">
+      		<classpath>
+        	<pathelement location="${FLEX_PMD_DIR}/flex-pmd-files-${FLEX_PMD_VERSION}.jar" />
+        	<pathelement location="${FLEX_PMD_DIR}/flex-pmd-metrics-${FLEX_PMD_VERSION}.jar" />
+        	<pathelement location="${FLEX_PMD_DIR}/as3-plugin-utils-${FLEX_PMD_VERSION}.jar" />
+        	<pathelement location="${FLEX_PMD_DIR}/as3-parser-${FLEX_PMD_VERSION}.jar" />
+        	<pathelement location="${FLEX_PMD_DIR}/as3-parser-api-${FLEX_PMD_VERSION}.jar" />
+		<pathelement location="${FLEX_PMD_DIR}/commons-lang-2.4.jar" />
+		<pathelement location="${FLEX_PMD_DIR}/flex-pmd-ruleset-api-${FLEX_PMD_VERSION}.jar" />
+        	<pathelement location="${FLEX_PMD_DIR}/pmd-4.2.5.jar" />
+      		<pathelement location="${FLEX_PMD_DIR}/dom4j-1.6.1.jar"/>
+      		</classpath>
+	</taskdef> 
+	
+	<target name="metrics">
+		<flexMetrics sourcedirectory="${SOURCE_DIR}" outputfile="${REPORTS_DIR}/javancss.xml"/>
+	</target>
+	
+</project>

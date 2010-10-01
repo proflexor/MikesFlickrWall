@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="MacRoman"?>
+<pmd-cpd>
+<duplication lines="11" tokens="79">
+<file line="52" path="/Users/jonbcampos/Documents/work/dedo/flickrwall/flash/src/FlickrWall.as"/>
+<file line="218" path="/Users/jonbcampos/Documents/work/dedo/flickrwall/flash/src/mma/view/item/PictureItem.as"/>
+<codefragment>
+<![CDATA[
+			timer = new Timer(100, 1); 
+			timer.addEventListener(TimerEvent.TIMER, onRippleAgainHandler); 
+			timer.start();
+		}
+		private function onRippleAgainHandler(event:TimerEvent):void
+		{
+			var rippleObject:Ripple = new Ripple(this)
+			rippleObject.radius = 80; 
+			rippleObject.durationInFrames = 60 + timer.currentCount * 5; 
+			rippleObject.amplitude = 40 - timer.currentCount * 5; 
+			rippleObject.rippleIt(new Point(this.mouseX, this.mouseY))
+]]>
+</codefragment>
+</duplication>
+<duplication lines="5" tokens="73">
+<file line="136" path="/Users/jonbcampos/Documents/work/dedo/flickrwall/flash/src/tuio/flash/events/TUIOObject.as"/>
+<file line="180" path="/Users/jonbcampos/Documents/work/dedo/flickrwall/flash/src/tuio/flash/events/TUIOObject.as"/>
+<codefragment>
+<![CDATA[
+				} else if(TUIO_OBJECT != o) 
+				{
+
+					localPoint = TUIO_OBJECT.parent.globalToLocal(new Point(x, y));
+					TUIO_OBJECT.dispatchEvent(new TouchEvent(TouchEvent.MOUSE_OUT, true, false, x, y, localPoint.x, localPoint.y, dX, dY, oldX, oldY, TUIO_OBJECT, false,false,false, true, 0, TUIO_TYPE, ID, sID, angle));
+]]>
+</codefragment>
+</duplication>
+<duplication lines="12" tokens="60">
+<file line="101" path="/Users/jonbcampos/Documents/work/dedo/flickrwall/flash/src/mma/view/main/Canvas.as"/>
+<file line="116" path="/Users/jonbcampos/Documents/work/dedo/flickrwall/flash/src/mma/view/main/Canvas.as"/>
+<codefragment>
+<![CDATA[
+		private function onSetIndexImageHandler(event:StringEvent):void
+		{
+			event.stopImmediatePropagation(); 
+			var i:int; 
+			var len:int = largeContainer.numChildren; 
+			
+			for(i = 0; i < len; i++)
+			{
+				var pic:LargePictureItem = largeContainer.getChildAt(i) as LargePictureItem; 
+				if(pic.guid == event.str)
+				{
+					largeContainer.setChildIndex(pic, largeContainer.numChildren - 1); 
+]]>
+</codefragment>
+</duplication>
+<duplication lines="2" tokens="58">
+<file line="104" path="/Users/jonbcampos/Documents/work/dedo/flickrwall/flash/src/tuio/flash/events/TUIOObject.as"/>
+<file line="177" path="/Users/jonbcampos/Documents/work/dedo/flickrwall/flash/src/tuio/flash/events/TUIOObject.as"/>
+<codefragment>
+<![CDATA[
+						localPoint = TUIO_OBJECT.parent.globalToLocal(new Point(x, y));				
+						TUIO_OBJECT.dispatchEvent(new TouchEvent(TouchEvent.MOUSE_OVER, true, false, x, y, localPoint.x, localPoint.y, dX, dY, oldX, oldY, TUIO_OBJECT, false,false,false, true, 0, TUIO_TYPE, ID, sID, angle));					
+]]>
+</codefragment>
+</duplication>
+<duplication lines="1" tokens="55">
+<file line="105" path="/Users/jonbcampos/Documents/work/dedo/flickrwall/flash/src/tuio/flash/events/TUIOObject.as"/>
+<file line="188" path="/Users/jonbcampos/Documents/work/dedo/flickrwall/flash/src/tuio/flash/events/TUIOObject.as"/>
+<codefragment>
+<![CDATA[
+						o.dispatchEvent(new TouchEvent(TouchEvent.MOUSE_OVER, true, false, x, y, localPoint.x, localPoint.y, dX, dY, oldX, oldY, TUIO_OBJECT, false,false,false, true, 0, TUIO_TYPE, ID, sID, angle));
+]]>
+</codefragment>
+</duplication>
+<duplication lines="2" tokens="55">
+<file line="104" path="/Users/jonbcampos/Documents/work/dedo/flickrwall/flash/src/tuio/flash/events/TUIOObject.as"/>
+<file line="139" path="/Users/jonbcampos/Documents/work/dedo/flickrwall/flash/src/tuio/flash/events/TUIOObject.as"/>
+<codefragment>
+<![CDATA[
+				TUIO_OBJECT.dispatchEvent(new TouchEvent(TouchEvent.MOUSE_OUT, true, false, x, y, localPoint.x, localPoint.y, dX, dY, oldX, oldY, TUIO_OBJECT, false,false,false, true, 0, TUIO_TYPE, ID, sID, angle));				
+				TUIO_OBJECT.dispatchEvent(new TouchEvent(TouchEvent.MOUSE_UP, true, false, x, y, localPoint.x, localPoint.y, dX, dY, oldX, oldY, TUIO_OBJECT, false,false,false, true, 0, TUIO_TYPE, ID, sID, angle));									
+]]>
+</codefragment>
+</duplication>
+<duplication lines="7" tokens="53">
+<file line="65" path="/Users/jonbcampos/Documents/work/dedo/flickrwall/flash/src/tuio/flash/events/TUIOSimulator.as"/>
+<file line="95" path="/Users/jonbcampos/Documents/work/dedo/flickrwall/flash/src/tuio/flash/events/TUIOSimulator.as"/>
+<codefragment>
+<![CDATA[
+			if(action == "2")
+			{
+				for(i=0; i<blobArray.length; i++)
+				{
+					m = new Matrix();
+					p = new Point(blobArray[i].x - centerX, blobArray[i].y - centerY);
+					m.rotate(Math.PI * 0.01);
+]]>
+</codefragment>
+</duplication>
+</pmd-cpd>
