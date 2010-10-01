@@ -246,7 +246,14 @@ package mma.view.item
 			
 			loader = new Loader(); 
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoaderComplete);
-			loader.load(new URLRequest(photoData.large.source)); 
+			if(photoData.large != null)
+				loader.load(new URLRequest(photoData.large.source));
+			else if(photoData.medium != null)
+				loader.load(new URLRequest(photoData.medium.source));
+			else if(photoData.small != null)
+				loader.load(new URLRequest(photoData.small.source));
+			else
+				loader.load(new URLRequest(photoData.thumb.source));
 			
 			closeBtn = new CloseBtn();
 			closeBtn.buttonMode = true;

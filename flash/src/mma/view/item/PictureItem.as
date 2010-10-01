@@ -84,7 +84,7 @@ package mma.view.item
 			preloader.y = this.height/2 - 10; 
 			preloader.x = this.width/2 - preloader.width/2; 
 			
-			container.addEventListener(MouseEvent.MOUSE_DOWN, onTouchDownHandler); 
+			container.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler); 
 			
 			
 			
@@ -177,10 +177,10 @@ package mma.view.item
 			container.removeChild(preloader); 
 			//container = new Sprite(); 
 			
-			loader.content.addEventListener(MouseEvent.MOUSE_DOWN, onTouchDownHandler);
-			loader.addEventListener(MouseEvent.MOUSE_DOWN, onTouchDownHandler); 
+			loader.content.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler);
+			loader.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler); 
 			container.addChild(loader); 
-			container.addEventListener(MouseEvent.MOUSE_DOWN, onTouchDownHandler); 
+			container.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler); 
 			
 			this.cacheAsBitmap = true; 
 			container.cacheAsBitmap = true; 
@@ -189,14 +189,14 @@ package mma.view.item
 			
 			
 			
-			addEventListener(MouseEvent.MOUSE_DOWN, onTouchDownHandler); 
+			addEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler); 
 
 			//addEventListener(MouseEvent.CLICK, onMouseClickHandler); 
 			
 			//GetPixels(); 
 		}
 		
-		private function onTouchDownHandler(event:MouseEvent):void
+		private function onTouchDownHandler(event:TouchEvent):void
 		{
 			var flickrModel:FlickrModel = ModelLocator.getInstance().flickrModel;
 			
@@ -240,7 +240,7 @@ package mma.view.item
 			photoData.showThumb = false; 
 			
 		}
-		private function onMouseClickHandler(event:MouseEvent):void
+/*		private function onMouseClickHandler(event:MouseEvent):void
 		{
 			var e:Ripple = new Ripple(this); 
 			e.radius = 80; 
@@ -251,7 +251,7 @@ package mma.view.item
 			timer = new Timer(100, 1); 
 			timer.addEventListener(TimerEvent.TIMER, onRippleAgainHandler); 
 			timer.start();
-		}
+		}*/
 		private function onRippleAgainHandler(event:TimerEvent):void
 		{
 			var rippleObject:Ripple = new Ripple(this)
