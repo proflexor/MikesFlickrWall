@@ -4,10 +4,16 @@ package mma.view.main
 	
 	import flash.display.Graphics;
 	import flash.display.Sprite;
-	import flash.events.*;
+	import flash.events.Event;
+	import flash.geom.Rectangle;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	import flash.utils.Timer;
+	
+	import gl.events.GestureEvent;
+	import gl.events.TouchEvent;
+	
+	import id.core.TouchSprite;
 	
 	import mma.control.flickrControl.StartFlickrService;
 	import mma.custom.adapter.DataAdapter;
@@ -16,12 +22,11 @@ package mma.view.main
 	import mma.custom.event.StringEvent;
 	import mma.data.flickr.PhotoData;
 	import mma.model.*;
-	import mma.view.item.LargePictureItem;
 	import mma.view.item.PictureItem;
 	import mma.view.item.RotatableScalable;
 	import mma.view.item.TouchDot;
 	
-	public class Canvas extends Sprite
+	public class Canvas extends TouchSprite
 	{
 		private var images:Array = new Array("image1.png", 
 			"image2.png", "image3.png", "image4.png", "image5.png"); 
@@ -32,8 +37,8 @@ package mma.view.main
 		private var numWidth:int; 
 		private var timer:Timer; 
 		private var adapter:DataAdapter; 
-		private var largeContainer:Sprite; 
-		private var container:Sprite; 
+		private var largeContainer:TouchSprite; 
+		private var container:TouchSprite; 
 		private var dots:Object = {};
 		private var rs: RotatableScalable
 		
@@ -54,9 +59,10 @@ package mma.view.main
 			var i:int; 
 			var j:int; 
 			
-			container = new Sprite(); 
+			container = new TouchSprite(); 
 			addChild(container); 
-			largeContainer = new Sprite(); 
+			
+			largeContainer = new TouchSprite(); 
 			addChild(largeContainer); 
 			
 			//numHeight = 15; //Math.floor((this.height - 150)/75) + 2;
@@ -71,10 +77,6 @@ package mma.view.main
 				onImageDataLoadedHandler); 
 			flickrModel.addEventListener("NewPhotoPageAdded", onNewPhotoPageAddedHandler); 
 			c.execute();
-			
-			addEventListener(TouchEvent.TOUCH_BEGIN, onTouchBegin);
-			addEventListener(TouchEvent.TOUCH_END, onTouchEnd);
-			addEventListener(TouchEvent.TOUCH_MOVE, onTouchMove);
 		}
 		private function onNewPhotoPageAddedHandler(event:RangeEvent):void
 		{
@@ -93,27 +95,57 @@ package mma.view.main
 				d.index = i; 
 				d.xpos = xpos; 
 				d.ypos = ypos; 
+				
 				var image:PictureItem = new PictureItem(d);
 				image.addEventListener("RemoveThisItem", RemoveItemHandler); 
 				image.addEventListener("ShowLargePic", onShowLargePic);
+				
 				image.x = xpos; 
 				image.y = ypos; 
+				
 				container.addChild(image);
+				
 				ypos += 77; 
 			}
 		}
 		private function onShowLargePic(event:PhotoDataEvent):void
 		{
 			event.stopImmediatePropagation();
-			//var pic:LargePictureItem = new LargePictureItem(event.photoData); 
+			
 			var pic:RotatableScalable = new RotatableScalable(event.photoData);
 			pic.addEventListener("SetIndexImage", onSetIndexImageHandler); 
 			pic.addEventListener("RemoveLargeImage", onRemoveLargeImageHandler); 
+			
+			pic.blobContainerEnabled = true;
+			
 			pic.x = event.photoData.xpos; 
 			pic.y = event.photoData.ypos; 
+			
+			pic.blobContainer.addEventListener(TouchEvent.TOUCH_DOWN, startDrag_Press);
+			pic.blobContainer.addEventListener(TouchEvent.TOUCH_UP, stopDrag_Release);
+			pic.blobContainer.addEventListener(GestureEvent.GESTURE_ROTATE, gestureRotateHandler);
+			pic.blobContainer.addEventListener(GestureEvent.GESTURE_SCALE, gestureScaleHandler); 
+			
 			largeContainer.addChild(pic); 
 			
 		}
+		
+		private function startDrag_Press(e:TouchEvent):void {
+			e.target.startTouchDrag(false);
+		}
+		private function stopDrag_Release(e:TouchEvent):void {
+			e.target.stopTouchDrag(void);
+		}
+		
+		private function gestureRotateHandler(e:GestureEvent):void {
+			e.target.rotation += e.value;
+		}
+		
+		private function gestureScaleHandler(e:GestureEvent):void {
+			e.target.scaleX += e.value;
+			e.target.scaleY += e.value;
+		}			
+		
 		private function onRemoveLargeImageHandler(event:StringEvent):void
 		{
 			event.stopImmediatePropagation(); 
@@ -194,60 +226,11 @@ package mma.view.main
 		{
 			
 		}
-		
-/*		private function onRotateHandler(event:TransformGestureEvent):void
-		{
-			//if(event.target is LargePictureItem)
-			if(event.target is RotatableScalable)
-			{
-				event.target.rotation += event.rotation;
-			}
-		}
-*/		
-		private function onTouchBegin(event:TouchEvent):void
-		{
-			event.stopImmediatePropagation();
-			var dot:TouchDot = new TouchDot();
-			dot.ID = event.touchPointID;
-			dot.x = event.stageX;
-			dot.y = event.stageY;	
-			dots[event.touchPointID.toString()] = dot;
-			addChild(dot);
-		}
-		
-		private function onTouchEnd(event:TouchEvent):void
-		{
-			trace("Removed TouchDotID: " + event.touchPointID);
-			event.stopImmediatePropagation();
-			var dot:TouchDot = dots[event.touchPointID.toString()];
-			if(dot)
-			{
-				if(dot.stage)
-				{
-					removeChild(dot);
-				}
-				delete dots[event.touchPointID.toString()];
-			}				
-			else
-				return;
-		}
-		
-		private function onTouchMove(event:TouchEvent):void
-		{
-			var dot:TouchDot = dots[event.touchPointID.toString()];
-			if(dot)
-			{
-				dot.x = event.stageX;
-				dot.y = event.stageY;
-			}				
-			else
-				return;
-		}
-		
+			
 		public function draw():void
 		{
 			var g:Graphics = this.graphics; 
-			g.lineStyle(0, 0x9f9f9f); 
+			//g.lineStyle(0, 0x9f9f9f); 
 			g.beginFill(0xefefef, 0); 
 			g.drawRect(0, 0, 2560, 1460); 
 			g.endFill();

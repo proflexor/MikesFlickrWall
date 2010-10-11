@@ -5,12 +5,16 @@ package mma.view.item
 	import flash.display.Loader;
 	import flash.display.Sprite;
 	import flash.events.Event;
-	import flash.events.TouchEvent;
 	import flash.filters.DropShadowFilter;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.net.URLRequest;
+	
+	import gl.events.GestureEvent;
+	import gl.events.TouchEvent;
+	
+	import id.core.TouchSprite;
 	
 	import mma.custom.event.StringEvent;
 	import mma.data.flickr.PhotoData;
@@ -20,7 +24,7 @@ package mma.view.item
 	
 	import mx.utils.UIDUtil;
 
-	public class RotatableScalable extends Sprite
+	public class RotatableScalable extends TouchSprite
 	{
 		// ------- Child elements -------
 		
@@ -40,8 +44,8 @@ package mma.view.item
 		
 		private var photoData:PhotoData; 
 		public var guid:String; 
-		private var container:Sprite;
-		private var imgContainer:Sprite;
+		//private var container:Sprite;
+		//private var imgContainer:Sprite;
 		private var loader:Loader; 
 		
 		//animation vars.
@@ -96,91 +100,43 @@ package mma.view.item
 		
 		// ------- Private methods -------
 		
-		private function addTouchPoint(touchPoint:TouchPoint):void
-		{
-			for(var i:int = 0; i < touchPoints.length; i++)
-			{
-				if(touchPoints[i].ID == touchPoint.ID)
-				{
-					return;
-				}
-			}
-			
-			touchPoints.push(touchPoint);
-			
-			if(touchPoints.length == 1)
-			{
-				state = DRAGGING;
-				touchPoint1 = touchPoints[0];
-			}
-			
-			else if(touchPoints.length > 1)
-			{
-				state = ROTATE_SCALE;
-				touchPoint1 = touchPoints[0];
-				touchPoint2 = touchPoints[1];
-			}
-		}
-			
-		private function removeTouchPoint(id:int):void
-		{
-			for(var i:int =0; i < touchPoints.length; i++)
-			{
-				if(touchPoints[i].ID == id)
-				{
-					touchPoints.splice(i,1);
-					if(touchPoints.length == 0)
-					{
-						touchPoint1 = null;
-						touchPoint2 = null;
-						state = NONE;
-					}
-					
-					if(touchPoints.length == 1)
-					{
-						state = DRAGGING;
-						touchPoint1 = touchPoints[0];
-						touchPoint2 = null;
-						trace(touchPoints);
-					}
-					
-					if(touchPoints.length >= 2)
-					{
-						state = ROTATE_SCALE;
-						touchPoint1 = touchPoints[0];
-						touchPoint2 = touchPoints[1];
-						
-						trace("AFTER REMOVE:");
-						trace("touch1: " + touchPoints[0]);
-						trace("touch2: " + touchPoints[1]);
-						
-					}
-					return;
-				}
-			}
-			return;
-		}
-		
+
 		private function addTouchEvents():void
 		{
+			trace("addTouchEvents()");
 			photoData.showThumb = false; 
 			
-			closeBtn.x = loader.content.width + 25; 
-			closeBtn.y = - 25;
-			container.addChild(closeBtn); 
+			closeBtn.x = width - 25; 
+			closeBtn.y = -25;
+			addChild(closeBtn); 
 			
-			closeBtn.addEventListener(TouchEvent.TOUCH_BEGIN, onCloseHandler);
+			closeBtn.addEventListener(TouchEvent.TOUCH_TAP, onCloseHandler);
+	
+			this.transform.matrix  = new Matrix(1, 0, 0, 1, -width/2, -height/2);
 			
-			loader.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchBegin, false, 0, true);
-			loader.addEventListener(TouchEvent.TOUCH_END, onTouchEnd, false, 0, true);
-			loader.addEventListener(TouchEvent.TOUCH_MOVE, onTouchMove, false, 0, true);
+			this.x = photoData.xpos; 
+			this.y = photoData.ypos;
+			trace("recalculate x & y");
 			
-			container.transform.matrix  = 
-				new Matrix(1, 0, 0, 1, -width/2,
-					-height/2);
+			drawBorder();			
+		}
+		
+		private function drawBorder():void
+		{
+			graphics.clear();
 			
-			this.x = this.x + width/2; 
-			this.y = this.y + height/2; 
+			trace("draw background");
+			
+			if((loader.width >= maxW - 40) || (loader.width <= minW + 40))
+				graphics.lineStyle(20,0x121247,1.0,true);
+			else
+				graphics.lineStyle(20,0xefefef,1.0,true);
+			
+			graphics.moveTo(0, 0);
+			graphics.lineTo(loader.width, 0);
+			graphics.lineTo(loader.width, loader.height);
+			graphics.lineTo(0, loader.height);
+			graphics.lineTo(0, 0);
 		}
 		
 		protected function getAngleTrig(X:Number, Y:Number):Number
@@ -214,21 +170,14 @@ package mma.view.item
 			
 		}
 		
-		
 		private function showBorder():void
 		{
 			closeBtn.visible = true; 
-			
-			
 		}
 		private function hideBorder():void
 		{
 			closeBtn.visible = false;
-			
-		}
-		
-		
-		
+		}		
 		
 		
 		// ------- Public functions -------
@@ -237,12 +186,13 @@ package mma.view.item
 		
 		private function _onAddedToStage(event:Event):void
 		{
+			trace("onAddedToStage()");
 			event.stopImmediatePropagation();
 			
 			removeEventListener(Event.ADDED_TO_STAGE, _onAddedToStage);
 			
-			container = new Sprite(); 
-			addChild(container);
+			//container = new Sprite(); 
+			//addChild(container);
 			
 			loader = new Loader(); 
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoaderComplete);
@@ -257,6 +207,7 @@ package mma.view.item
 			
 			closeBtn = new CloseBtn();
 			closeBtn.buttonMode = true;
+			trace("components added to screen");
 		}
 
 		private function onCloseHandler(event:TouchEvent):void
@@ -265,10 +216,10 @@ package mma.view.item
 			model.flickrModel.isClosing = true;
 			event.stopImmediatePropagation();
 			
-			closeBtn.removeEventListener(TouchEvent.TOUCH_BEGIN, onCloseHandler);
+			closeBtn.removeEventListener(TouchEvent.TOUCH_TAP, onCloseHandler);
 			
-			loader.removeEventListener(TouchEvent.TOUCH_BEGIN, onTouchBegin); 
-			loader.removeEventListener(TouchEvent.TOUCH_END, onTouchEnd); 
+			/*loader.removeEventListener(TouchEvent.TOUCH_BEGIN, onTouchBegin); 
+			loader.removeEventListener(TouchEvent.TOUCH_END, onTouchEnd);*/ 
 			
 			trace("close LargePictureItem");
 			photoData.showThumb = true; 
@@ -279,6 +230,7 @@ package mma.view.item
 		
 		private function onLoaderComplete(event:Event):void
 		{
+			trace("onLoaderComplete()");
 			event.stopImmediatePropagation(); 
 			
 			loader.visible = false; 
@@ -296,16 +248,9 @@ package mma.view.item
 			
 			destWidth = loader.content.width; 
 			destHeight = loader.content.height; 
-
-			imgContainer = new Sprite();
-			imgContainer.graphics.beginFill(0xefefef, 1);
-			imgContainer.graphics.drawRect(0, 0, loader.content.width + 30, loader.content.height + 30);
-			imgContainer.graphics.endFill();
+			trace("loader calculations performed");
 			
-			imgContainer.addChild(loader);
-			loader.transform.matrix = new Matrix(1, 0, 0, 1, imgContainer.width/2 - loader.content.width/2, imgContainer.height/2 - loader.content.height/2);
-			
-			container.addChild(imgContainer);
+			addChild(loader);
 			
 			loader.content.width = 75; 
 			loader.content.height = 75; 
@@ -321,6 +266,7 @@ package mma.view.item
 			addEventListener(Event.ENTER_FRAME, onShowImageEnterFrame)
 			
 			loader.visible = true;
+			trace("loader set to visible");		
 		}
 		
 		private function onShowImageEnterFrame(event:Event):void
@@ -354,6 +300,7 @@ package mma.view.item
 			var r:Rectangle = new Rectangle(0, 0, 2560, 1460); 
 			if(r.contains(touchPoint1.x, touchPoint1.y))
 			{
+				trace("recalculate image points from touch points");
 				this.x += (touchPoint1.x  - startX); 
 				this.y += (touchPoint1.y  - startY); 
 			}
@@ -362,8 +309,9 @@ package mma.view.item
 			
 		}
 		
-		private function onRotateEnterFrame(event:Event):void
+/*		private function onRotateEnterFrame(event:Event):void
 		{
+			trace("onRotateEnterFrame()");
 			if(state != ROTATE_SCALE)
 			{
 				return;
@@ -381,7 +329,7 @@ package mma.view.item
 			var curAngle:Point = touchPoint1.subtract(touchPoint2);
 			var dis:Number = Point.distance(touchPoint1, touchPoint2); 
 			var ratio:Number = dis / startD;
-			trace(ratio);
+			trace("Ratio: " + ratio);
 			
 			var tempR:Number = this.rotation; 
 			this.rotation = 0; 
@@ -389,25 +337,29 @@ package mma.view.item
 			var newW:Number = bW * ratio; 
 			var newH:Number = bH * ratio;
 			
+			var posX:Number = startX - newW/2;
+			var posY:Number = startY - newH/2;
+			
 			if(newW < maxW && newW > minW)
 			{
 				loader.content.width = newW; 
 				loader.content.height = newH;
 				
-				closeBtn.x = loader.content.width - 25; 
-				closeBtn.y = - 25;
+				closeBtn.x = startX - newW/2; 
+				closeBtn.y = startY - newH/2 - 25;
 				
-				this.container.width = loader.content.width; 
-				this.width = loader.content.width; 
+				loader.width = newW; 
+				width = newW+100; 
 				
-				this.container.height = loader.content.height; 
-				this.height = loader.content.height; 
+				loader.height = newH; 
+				height = newH+100;
 				
-				container.transform.matrix  = 
-					new Matrix(1, 0, 0, 1, -width/2,
-						-height/2); 
+				this.transform.matrix  = 
+					new Matrix(1, 0, 0, 1, posX, posY); 
 				
 			}
+			
+			drawBorder();
 			
 			var angle:Number = getAngleTrig(curAngle.x, curAngle.y);
 			if(Math.abs(angle - firstAngle) > 2)
@@ -416,11 +368,11 @@ package mma.view.item
 			}
 			this.rotation = tempR + angle - firstAngle;
 			firstAngle = angle;
-		}
+		}*/
 		
 		// ------- Touch event handlers -------
 		
-		private function onTouchBegin(event:TouchEvent):void
+/*		private function onTouchBegin(event:TouchEvent):void
 		{
 			addTouchPoint(new TouchPoint(event.stageX, event.stageY, event.touchPointID));
 			var e:StringEvent = new StringEvent("SetIndexImage", this.guid); 
@@ -442,7 +394,8 @@ package mma.view.item
 				removeEventListener(Event.ENTER_FRAME, onMoveEnterFrame); 
 				removeEventListener(Event.ENTER_FRAME, onRotateEnterFrame); 
 				addEventListener(Event.ENTER_FRAME, onRotateEnterFrame);
-				
+				startX = event.stageX;				
+				startY = event.stageY;					
 				startD = TouchPoint.distance(touchPoint1, touchPoint2); 
 				startCenter = Point.interpolate(touchPoint1, touchPoint2, 0.5);
 				//var dx:Number = touchPoint1.x - touchPoint2.x;
@@ -461,8 +414,8 @@ package mma.view.item
 			trace("Removed TouchPointID: " + event.touchPointID);
 			removeTouchPoint(event.touchPointID);
 			
-			loader.removeEventListener(TouchEvent.TOUCH_BEGIN, onTouchBegin);
-			loader.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchBegin); 
+			//loader.removeEventListener(TouchEvent.TOUCH_BEGIN, onTouchBegin);
+			//loader.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchBegin); 
 			
 			removeEventListener(Event.ENTER_FRAME, onRotateEnterFrame);
 			removeEventListener(Event.ENTER_FRAME, onMoveEnterFrame);
@@ -511,7 +464,7 @@ package mma.view.item
 				return;
 			}
 
-		}
+		}*/
 		// ------- Overriden methods -------
 	}
 }

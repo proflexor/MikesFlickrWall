@@ -3,15 +3,20 @@ package {
 	import flash.events.*;
 	import flash.geom.Point;
 	import flash.ui.Keyboard;
-	import flash.utils.Timer;4
+	import flash.utils.Timer;
 	import mma.custom.effect.Ripple;
 	import mma.view.main.Canvas;
 	
 	import tuio.flash.events.*;
 	import flash.ui.Multitouch;
 	import flash.ui.MultitouchInputMode;
+	import mma.custom.component.slideoutMenu;
 	
-	public class FlickrWall extends Sprite
+	import id.core.Application;
+	import gl.events.TouchEvent;
+	import gl.events.GestureEvent;
+	
+	public class FlickrWall extends Application
 	{
 		private var timer:Timer; 
 		
@@ -40,6 +45,11 @@ package {
 			var canvas:Canvas = new Canvas(); 
 			addChild(canvas);
 			//addEventListener(MouseEvent.MOUSE_DOWN, onMDHandler);
+			
+			var slideout:slideoutMenu = new slideoutMenu();
+			addChild(slideout);
+			slideout.x = 1000;
+			slideout.y = 10;
 		}
 		private function onMDHandler(event:MouseEvent):void
 		{

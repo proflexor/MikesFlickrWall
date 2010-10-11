@@ -3,7 +3,6 @@ package mma.view.item
 	import flash.display.Loader;
 	import flash.display.Sprite;
 	import flash.events.Event;
-	import flash.events.TouchEvent;
 	import flash.filters.DropShadowFilter;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
@@ -11,6 +10,11 @@ package mma.view.item
 	import flash.net.URLRequest;
 	
 	import flashx.textLayout.operations.CutOperation;
+	
+	import gl.events.GestureEvent;
+	import gl.events.TouchEvent;
+	
+	import id.core.TouchSprite;
 	
 	import mma.custom.event.StringEvent;
 	import mma.data.flickr.PhotoData;
@@ -21,7 +25,7 @@ package mma.view.item
 	import mx.utils.UIDUtil;
 	
 	
-	public class LargePictureItem extends Sprite
+	public class LargePictureItem extends TouchSprite
 	{
 		private static const GRAD_PI:Number = 180/Math.PI;
 		
@@ -40,7 +44,7 @@ package mma.view.item
 		
 		private var photoData:PhotoData; 
 		public var guid:String; 
-		private var container:Sprite;
+		private var container:TouchSprite;
 		private var loader:Loader; 
 		//animation vars.
 		private var angle:Number = 0;
@@ -72,7 +76,7 @@ package mma.view.item
 		private var widthRatio:Number; 
 		
 		private var resizeBtn:Sprite; 
-		private var closeBtn:Sprite; 
+		private var closeBtn:TouchSprite; 
 		
 		private var resizeButtonTouched:Boolean = false;
 		
@@ -123,15 +127,22 @@ package mma.view.item
 			resizeBtn.x = loader.content.width - 25; 
 			resizeBtn.y = loader.content.height - 25;
 			container.addChild(resizeBtn); 
-			 
-			closeBtn.addEventListener(TouchEvent.TOUCH_BEGIN, onCloseHandler);
+			
+			this.blobContainerEnabled = true;
+			
+			closeBtn.addEventListener(TouchEvent.TOUCH_TAP, onCloseHandler);
 //			resizeBtn.addEventListener(TouchEvent.TOUCH_BEGIN, onResizeHandler);
-			resizeBtn.addEventListener(TouchEvent.TOUCH_END, onTouchUpHandler);
+//			resizeBtn.addEventListener(TouchEvent.TOUCH_END, onTouchUpHandler);
 			
-			loader.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler);
-			loader.addEventListener(TouchEvent.TOUCH_END, onTouchUpHandler);
+//			loader.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler);
+//			loader.addEventListener(TouchEvent.TOUCH_END, onTouchUpHandler);
 			
-			addEventListener(TouchEvent.TOUCH_MOVE, onTouchMoveHandler);
+//			addEventListener(TouchEvent.TOUCH_MOVE, onTouchMoveHandler);
+			
+			loader.addEventListener(TouchEvent.TOUCH_DOWN, startDrag_Press);
+			loader.addEventListener(TouchEvent.TOUCH_UP, stopDrag_Release);
+			loader.addEventListener(GestureEvent.GESTURE_ROTATE, gestureRotateHandler);
+			loader.addEventListener(GestureEvent.GESTURE_SCALE, gestureScaleHandler);
 			
 			container.transform.matrix  = 
 				new Matrix(1, 0, 0, 1, -width/2,
@@ -143,7 +154,7 @@ package mma.view.item
 			trace("y: " + y);
 			trace("width: " + width);
 			trace("height: " + height);
-		}
+		}		
 		
 		private function addBlob(id:int, originX:Number, originY:Number):void
 		{
@@ -240,8 +251,8 @@ package mma.view.item
 			closeBtn.removeEventListener(TouchEvent.TOUCH_BEGIN, onCloseHandler);
 			
 //			resizeBtn.removeEventListener(TouchEvent.TOUCH_BEGIN, onResizeHandler);
-			loader.removeEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler); 
-			loader.removeEventListener(TouchEvent.TOUCH_END, onTouchUpHandler); 
+//			loader.removeEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler); 
+//			loader.removeEventListener(TouchEvent.TOUCH_END, onTouchUpHandler); 
 			
 			trace("close LargePictureItem");
 			photoData.showThumb = true; 

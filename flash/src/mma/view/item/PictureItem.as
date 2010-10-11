@@ -7,7 +7,6 @@ package mma.view.item
 	import flash.events.IOErrorEvent;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
-	import flash.events.TouchEvent;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.net.URLRequest;
@@ -15,6 +14,10 @@ package mma.view.item
 	import flash.ui.Multitouch;
 	import flash.ui.MultitouchInputMode;
 	import flash.utils.Timer;
+	
+	import gl.events.TouchEvent;
+	
+	import id.core.TouchSprite;
 	
 	import mma.custom.effect.Ripple;
 	import mma.custom.event.PhotoDataEvent;
@@ -24,7 +27,7 @@ package mma.view.item
 	
 	import tuio.flash.events.*;
 
-	public class PictureItem extends Sprite implements IPictureItem
+	public class PictureItem extends TouchSprite implements IPictureItem
 	{
 	
 		[Embed(source="/asset/flash/Preloader.swf", symbol="PreloaderMC")]
@@ -84,7 +87,8 @@ package mma.view.item
 			preloader.y = this.height/2 - 10; 
 			preloader.x = this.width/2 - preloader.width/2; 
 			
-			container.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler); 
+//			container.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler); 
+			container.addEventListener(TouchEvent.TOUCH_DOWN, onTouchDownHandler); 
 			
 			
 			
@@ -177,10 +181,13 @@ package mma.view.item
 			container.removeChild(preloader); 
 			//container = new Sprite(); 
 			
-			loader.content.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler);
-			loader.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler); 
+//			loader.content.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler);
+			loader.content.addEventListener(TouchEvent.TOUCH_DOWN, onTouchDownHandler);
+//			loader.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler); 
+			loader.addEventListener(TouchEvent.TOUCH_DOWN, onTouchDownHandler); 
 			container.addChild(loader); 
-			container.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler); 
+//			container.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler); 
+			container.addEventListener(TouchEvent.TOUCH_DOWN, onTouchDownHandler); 
 			
 			this.cacheAsBitmap = true; 
 			container.cacheAsBitmap = true; 
@@ -189,7 +196,7 @@ package mma.view.item
 			
 			
 			
-			addEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler); 
+			addEventListener(TouchEvent.TOUCH_DOWN, onTouchDownHandler); 
 
 			//addEventListener(MouseEvent.CLICK, onMouseClickHandler); 
 			
