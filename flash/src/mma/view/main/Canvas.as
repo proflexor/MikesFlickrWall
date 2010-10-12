@@ -113,7 +113,7 @@ package mma.view.main
 			event.stopImmediatePropagation();
 			
 			var pic:RotatableScalable = new RotatableScalable(event.photoData);
-			pic.addEventListener("SetIndexImage", onSetIndexImageHandler); 
+			addEventListener("SetIndexImage", onSetIndexImageHandler); 
 			pic.addEventListener("RemoveLargeImage", onRemoveLargeImageHandler); 
 			
 			pic.blobContainerEnabled = true;
@@ -131,6 +131,11 @@ package mma.view.main
 		}
 		
 		private function startDrag_Press(e:TouchEvent):void {
+			if(e.currentTarget.guid)
+			{
+				var event:StringEvent = new StringEvent("SetIndexImage", e.currentTarget.guid); 
+				dispatchEvent(event);
+			}	
 			e.target.startTouchDrag(false);
 		}
 		private function stopDrag_Release(e:TouchEvent):void {
@@ -142,8 +147,18 @@ package mma.view.main
 		}
 		
 		private function gestureScaleHandler(e:GestureEvent):void {
-			e.target.scaleX += e.value;
-			e.target.scaleY += e.value;
+			e.stopImmediatePropagation();
+			
+			if(!e.target.isAtLimit())
+			{
+				e.target.scaleX += e.value;
+				e.target.scaleY += e.value;
+			
+				e.target.drawBorder();
+			}
+			else
+				return;
+				
 		}			
 		
 		private function onRemoveLargeImageHandler(event:StringEvent):void

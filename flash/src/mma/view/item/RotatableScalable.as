@@ -91,7 +91,7 @@ package mma.view.item
 		
 		private var widthRatio:Number; 
 		
-		private var closeBtn:Sprite; 
+		private var closeBtn:TouchSprite = new TouchSprite(); 
 		
 		[Embed(source="/asset/flash/ImageWallAsset.swf", symbol="CloseBtn")]
 		public var CloseBtn:Class; 
@@ -121,16 +121,29 @@ package mma.view.item
 			drawBorder();			
 		}
 		
-		private function drawBorder():void
+		public function drawBorder():void
 		{
 			graphics.clear();
 			
 			trace("draw background");
-			
-			if((loader.width >= maxW - 40) || (loader.width <= minW + 40))
+			if(this.width >= maxW)
+			{
 				graphics.lineStyle(20,0x121247,1.0,true);
+				width = maxW;
+				height = maxH;
+			}
+			
+			else if(this.width <= minW)
+			{
+				graphics.lineStyle(20,0x121247,1.0,true);
+				width = minW;
+				height = minH;
+			}
+			
 			else
-				graphics.lineStyle(20,0xefefef,1.0,true);
+			{
+				graphics.lineStyle(20,0xefefef,1.0,true);				
+			}
 			
 			graphics.moveTo(0, 0);
 			graphics.lineTo(loader.width, 0);
@@ -181,6 +194,10 @@ package mma.view.item
 		
 		
 		// ------- Public functions -------
+		public function isAtLimit():Boolean
+		{
+				return (this.width == maxW || this.width == minW);
+		}
 		
 		// ------- Event handling -------
 		
@@ -205,13 +222,15 @@ package mma.view.item
 			else
 				loader.load(new URLRequest(photoData.thumb.source));
 			
-			closeBtn = new CloseBtn();
+			closeBtn.addChild(new CloseBtn());
 			closeBtn.buttonMode = true;
 			trace("components added to screen");
 		}
 
 		private function onCloseHandler(event:TouchEvent):void
 		{
+			event.stopImmediatePropagation();
+			
 			var model:mma.model.ModelLocator = mma.model.ModelLocator.getInstance();
 			model.flickrModel.isClosing = true;
 			event.stopImmediatePropagation();
