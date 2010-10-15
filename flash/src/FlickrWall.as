@@ -2,19 +2,22 @@ package {
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.Point;
+	import flash.profiler.showRedrawRegions;
 	import flash.ui.Keyboard;
+	import flash.ui.Multitouch;
+	import flash.ui.MultitouchInputMode;
 	import flash.utils.Timer;
+	
+	import gl.events.GestureEvent;
+	import gl.events.TouchEvent;
+	
+	import id.core.Application;
+	
+	import mma.custom.component.slideoutMenu;
 	import mma.custom.effect.Ripple;
 	import mma.view.main.Canvas;
 	
 	import tuio.flash.events.*;
-	import flash.ui.Multitouch;
-	import flash.ui.MultitouchInputMode;
-	import mma.custom.component.slideoutMenu;
-	
-	import id.core.Application;
-	import gl.events.TouchEvent;
-	import gl.events.GestureEvent;
 	
 	public class FlickrWall extends Application
 	{
@@ -31,7 +34,6 @@ package {
 			stage.scaleMode = StageScaleMode.NO_SCALE; 
 			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
-			
 		}
 		private function handleKeyDown(event:KeyboardEvent):void
 		{

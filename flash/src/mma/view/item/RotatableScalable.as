@@ -97,6 +97,50 @@ package mma.view.item
 		public var CloseBtn:Class; 
 		
 		// ------- Public properties -------
+		private var _scaleStatus:int =0;		// 0 for scalable, 1 for at max, 2 for at min.
+		public function get scaleStatus():int
+		{
+			return _scaleStatus;
+		}
+		
+		public function drawBorder(scale:Number):void
+		{
+			loader.content.width *= (1 + scale);
+			loader.content.height = loader.content.width/widthRatio;
+			
+			graphics.clear();
+			
+			if(loader.content.width >= maxW)
+			{
+				graphics.lineStyle(20,0x121247,1.0,true);
+				loader.content.width = maxW;
+				loader.content.height= maxW/widthRatio;
+				_scaleStatus = 1;
+			}
+				
+			else if(loader.content.width <= minW)
+			{
+				graphics.lineStyle(20,0x121247,1.0,true);
+				loader.content.width = minW;
+				loader.content.height = minW/widthRatio;
+				_scaleStatus = 2;
+			}
+				
+			else
+			{
+				graphics.lineStyle(20,0xefefef,1.0,true);
+				_scaleStatus = 0;
+			}
+			
+			graphics.moveTo(0, 0);
+			graphics.lineTo(loader.width, 0);
+			graphics.lineTo(loader.width, loader.height);
+			graphics.lineTo(0, loader.height);
+			graphics.lineTo(0, 0);
+			
+			closeBtn.x = loader.content.width-25;
+			trace("draw background and width is " + loader.content.width + " while the status is " + _scaleStatus);
+		}
 		
 		// ------- Private methods -------
 		
@@ -118,44 +162,12 @@ package mma.view.item
 			this.y = photoData.ypos;
 			trace("recalculate x & y");
 			
-			drawBorder();			
+			drawBorder(0);			
 		}
 		
 		
-		public function drawBorder():void
-		{
-			graphics.clear();
-			
-			var status:int = setScaleStatus();
-			
-			if(status == 1)
-			{
-				graphics.lineStyle(20,0x121247,1.0,true);
-				width = maxW;
-				height = maxW/widthRatio;
-			}
-			
-			else if(status == 2)
-			{
-				graphics.lineStyle(20,0x121247,1.0,true);
-				width = minW;
-				height = minW/widthRatio;
-			}
-			
-			else
-			{
-				graphics.lineStyle(20,0xefefef,1.0,true);				
-			}
-			
-			graphics.moveTo(0, 0);
-			graphics.lineTo(loader.width, 0);
-			graphics.lineTo(loader.width, loader.height);
-			graphics.lineTo(0, loader.height);
-			graphics.lineTo(0, 0);
-			trace("draw background and width is " + width + " while the status is " + _scaleStatus);
-		}
 		
-		protected function getAngleTrig(X:Number, Y:Number):Number
+		/*protected function getAngleTrig(X:Number, Y:Number):Number
 		{
 			if (X == 0.0)
 			{
@@ -184,7 +196,7 @@ package mma.view.item
 				else
 					return 180.0+Math.atan(-Y/-X) * GRAD_PI;
 			
-		}
+		}*/
 		
 		private function showBorder():void
 		{
@@ -197,23 +209,6 @@ package mma.view.item
 		
 		
 		// ------- Public functions -------
-		private var _scaleStatus:int =0;		// 0 for scalable, 1 for at max, 2 for at min.
-		public function setScaleStatus():int
-		{
-			if(this.width >= maxW)
-			{
-				_scaleStatus = 1;
-			}
-			else if(this.width <= minW)
-			{
-				_scaleStatus = 2;
-			}
-			else
-			{
-				_scaleStatus = 0;
-			}
-			return _scaleStatus;
-		}
 		
 		// ------- Event handling -------
 		
@@ -314,9 +309,6 @@ package mma.view.item
 			loader.content.width = w; 
 			loader.content.height = h;
 				
-				
-			
-			
 			loader.content.alpha = a + .5; 
 			var degree:Number = angle * (180/Math.PI); 
 			if(degree  >= 90)

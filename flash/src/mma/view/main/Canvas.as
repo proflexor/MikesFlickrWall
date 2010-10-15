@@ -149,7 +149,7 @@ package mma.view.main
 		
 		private function gestureScaleHandler(e:GestureEvent):void {
 			e.stopImmediatePropagation();
-			var status:int = e.currentTarget.setScaleStatus();
+			var status:int = e.currentTarget.scaleStatus;
 						
 			switch(status)
 			{
@@ -168,13 +168,11 @@ package mma.view.main
 					}
 					break;
 				default:
-					trace("Undefined scalingStatus = " + status);
+					trace("Undefined scalingStatus : " + status);
 					break;
 					
 			}
-			e.target.scaleX += e.value;
-			e.target.scaleY += e.value;
-			e.currentTarget.drawBorder();
+			e.currentTarget.drawBorder(e.value);
 				
 		}			
 		
