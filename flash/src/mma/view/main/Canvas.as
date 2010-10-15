@@ -119,7 +119,7 @@ package mma.view.main
 			pic.blobContainerEnabled = true;
 			
 			pic.x = event.photoData.xpos; 
-			pic.y = event.photoData.ypos; 
+			pic.y = event.photoData.ypos;  
 			
 			pic.blobContainer.addEventListener(TouchEvent.TOUCH_DOWN, startDrag_Press);
 			pic.blobContainer.addEventListener(TouchEvent.TOUCH_UP, stopDrag_Release);
@@ -137,6 +137,7 @@ package mma.view.main
 				dispatchEvent(event);
 			}	
 			e.target.startTouchDrag(false);
+			trace("draggin");
 		}
 		private function stopDrag_Release(e:TouchEvent):void {
 			e.target.stopTouchDrag(void);
@@ -148,16 +149,32 @@ package mma.view.main
 		
 		private function gestureScaleHandler(e:GestureEvent):void {
 			e.stopImmediatePropagation();
-			
-			if(!e.target.isAtLimit())
+			var status:int = e.currentTarget.setScaleStatus();
+						
+			switch(status)
 			{
-				e.target.scaleX += e.value;
-				e.target.scaleY += e.value;
-			
-				e.target.drawBorder();
+				case 0:
+					break;
+				case 1:
+					if(e.value >= 0)
+					{
+						return;
+					}
+					break;
+				case 2: 
+					if(e.value <= 0)
+					{
+						return;
+					}
+					break;
+				default:
+					trace("Undefined scalingStatus = " + status);
+					break;
+					
 			}
-			else
-				return;
+			e.target.scaleX += e.value;
+			e.target.scaleY += e.value;
+			e.currentTarget.drawBorder();
 				
 		}			
 		

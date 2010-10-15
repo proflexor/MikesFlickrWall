@@ -89,7 +89,7 @@ package mma.view.item
 		private var startD:Number;
 		private var startCenter:Point;
 		
-		private var widthRatio:Number; 
+		public var widthRatio:Number; 
 		
 		private var closeBtn:TouchSprite = new TouchSprite(); 
 		
@@ -121,23 +121,25 @@ package mma.view.item
 			drawBorder();			
 		}
 		
+		
 		public function drawBorder():void
 		{
 			graphics.clear();
 			
-			trace("draw background");
-			if(this.width >= maxW)
+			var status:int = setScaleStatus();
+			
+			if(status == 1)
 			{
 				graphics.lineStyle(20,0x121247,1.0,true);
 				width = maxW;
-				height = maxH;
+				height = maxW/widthRatio;
 			}
 			
-			else if(this.width <= minW)
+			else if(status == 2)
 			{
 				graphics.lineStyle(20,0x121247,1.0,true);
 				width = minW;
-				height = minH;
+				height = minW/widthRatio;
 			}
 			
 			else
@@ -150,6 +152,7 @@ package mma.view.item
 			graphics.lineTo(loader.width, loader.height);
 			graphics.lineTo(0, loader.height);
 			graphics.lineTo(0, 0);
+			trace("draw background and width is " + width + " while the status is " + _scaleStatus);
 		}
 		
 		protected function getAngleTrig(X:Number, Y:Number):Number
@@ -194,9 +197,22 @@ package mma.view.item
 		
 		
 		// ------- Public functions -------
-		public function isAtLimit():Boolean
+		private var _scaleStatus:int =0;		// 0 for scalable, 1 for at max, 2 for at min.
+		public function setScaleStatus():int
 		{
-				return (this.width == maxW || this.width == minW);
+			if(this.width >= maxW)
+			{
+				_scaleStatus = 1;
+			}
+			else if(this.width <= minW)
+			{
+				_scaleStatus = 2;
+			}
+			else
+			{
+				_scaleStatus = 0;
+			}
+			return _scaleStatus;
 		}
 		
 		// ------- Event handling -------
@@ -255,7 +271,6 @@ package mma.view.item
 			loader.visible = false; 
 			
 			maxW = loader.content.width; 
-			maxH = loader.content.height;
 			
 			widthRatio = loader.content.width/loader.content.height;
 			
@@ -263,7 +278,6 @@ package mma.view.item
 			loader.content.height = loader.content.height/2;
 			
 			minW = loader.content.width; 
-			minH = loader.content.height; 
 			
 			destWidth = loader.content.width; 
 			destHeight = loader.content.height; 
@@ -298,7 +312,9 @@ package mma.view.item
 			var a:Number = v * .5; 
 			
 			loader.content.width = w; 
-			loader.content.height = h; 
+			loader.content.height = h;
+				
+				
 			
 			
 			loader.content.alpha = a + .5; 
