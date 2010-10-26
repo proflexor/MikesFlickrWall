@@ -80,7 +80,7 @@
 		<!-- <minSize></minSize> -->
 
 		<!-- The window's initial maximum size, specified as a width/height pair in pixels, such as "1600 1200". Optional. -->
-		<!-- <maxSize></maxSize> -->
+		<!--<maxSize></maxSize> -->
 	</initialWindow>
 
     <!-- We recommend omitting the supportedProfiles element, -->

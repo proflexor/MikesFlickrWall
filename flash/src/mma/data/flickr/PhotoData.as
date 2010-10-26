@@ -5,7 +5,8 @@ package mma.data.flickr
 	import com.adobe.webapis.flickr.methodgroups.Photos;
 	
 	import flash.events.Event;
-	import flash.events.EventDispatcher; 
+	import flash.events.EventDispatcher;
+	import flash.events.IOErrorEvent;
 	
 	public class PhotoData extends EventDispatcher
 	{
@@ -43,6 +44,7 @@ package mma.data.flickr
 			
 			var photos:Photos = new Photos(service); 
 			service.addEventListener(FlickrResultEvent.PHOTOS_GET_SIZES, onGetPhotoInfoHandler); 
+			service.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
 			photos.getSizes(_photo.id); 
 		}
 		private function onGetPhotoInfoHandler(event:FlickrResultEvent):void
@@ -53,6 +55,11 @@ package mma.data.flickr
 			var photosize:PhotoSize = ary[0]; 	
 			photoSizes = event.data.photoSizes; 
 		}
+		private function onIOError(event:IOErrorEvent):void
+		{
+			trace("PhotoData.onIOError", event.text);
+		}
+		
 		public function set photoSizes(value:Array):void
 		{
 			var i:int; 

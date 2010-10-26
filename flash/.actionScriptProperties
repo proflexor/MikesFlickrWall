@@ -14,7 +14,9 @@
   </compiler>
   <applications>
     <application path="FlickrWall.as">
-      <airExcludes/>
+      <airExcludes>
+        <airExclude path="tuio"/>
+      </airExcludes>
     </application>
   </applications>
   <modules/>

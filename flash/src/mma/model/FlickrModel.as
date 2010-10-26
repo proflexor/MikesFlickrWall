@@ -138,7 +138,15 @@ package mma.model
 		
 		public function setPhotos(pg:PagedPhotoList):void
 		{
-			_page = pg;			
+			if(pg)
+			{
+				_page = pg;
+			}
+			else
+			{
+				dispatchEvent(new Event("CannotLoadImageData"));
+				return;
+			}
 			photoCounts = _page.photos.length; 
 			
 			trace("P count : " + photoCounts); 
@@ -147,7 +155,7 @@ package mma.model
 			var e:Event = new Event("ImagesDataLoaded"); 
 			dispatchEvent(e);  
 			
-			newPhotosTimer = new Timer(100, count);
+			newPhotosTimer = new Timer(500, count);
 			newPhotosTimer.addEventListener(TimerEvent.TIMER, onNewPhotoTimerHandler);  
 			newPhotosTimer.start();
 		}

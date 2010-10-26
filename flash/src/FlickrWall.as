@@ -27,7 +27,7 @@ package {
 		{
 			//TUIO.init(this,"localhost",3000,"",true);
 			draw(); 
-			Multitouch.inputMode=MultitouchInputMode.TOUCH_POINT;
+			//Multitouch.inputMode=MultitouchInputMode.TOUCH_POINT;
 			stage.nativeWindow.visible = true;
 			stage.align = StageAlign.TOP_LEFT;
 			stage.displayState = StageDisplayState.FULL_SCREEN; 
@@ -48,12 +48,12 @@ package {
 			addChild(canvas);
 			//addEventListener(MouseEvent.MOUSE_DOWN, onMDHandler);
 			
-			var slideout:slideoutMenu = new slideoutMenu();
+			/*var slideout:slideoutMenu = new slideoutMenu();
 			addChild(slideout);
 			slideout.x = 1000;
-			slideout.y = 10;
+			slideout.y = 10;*/
 		}
-		private function onMDHandler(event:MouseEvent):void
+		/*private function onMDHandler(event:MouseEvent):void
 		{
 			event.stopImmediatePropagation(); 
 			
@@ -66,7 +66,7 @@ package {
 			timer = new Timer(100, 2); 
 			timer.addEventListener(TimerEvent.TIMER, onRippleAgainHandler); 
 			timer.start();
-		}
+		}*//*
 		private function onRippleAgainHandler(event:TimerEvent):void
 		{
 			var rippleObject:Ripple = new Ripple(this)
@@ -74,7 +74,7 @@ package {
 			rippleObject.durationInFrames = 60 + timer.currentCount * 5; 
 			rippleObject.amplitude = 40 - timer.currentCount * 5; 
 			rippleObject.rippleIt(new Point(this.mouseX, this.mouseY))
-		}
+		}*/
 		public function draw():void
 		{
 			var g:Graphics = this.graphics; 

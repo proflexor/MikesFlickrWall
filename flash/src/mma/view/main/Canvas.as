@@ -39,8 +39,6 @@ package mma.view.main
 		private var adapter:DataAdapter; 
 		private var largeContainer:TouchSprite; 
 		private var container:TouchSprite; 
-		private var dots:Object = {};
-		private var rs: RotatableScalable
 		
 		private var flickrModel:FlickrModel = ModelLocator.getInstance().flickrModel; 
 	
@@ -131,6 +129,7 @@ package mma.view.main
 		}
 		
 		private function startDrag_Press(e:TouchEvent):void {
+			e.stopImmediatePropagation();
 			if(e.currentTarget.guid)
 			{
 				var event:StringEvent = new StringEvent("SetIndexImage", e.currentTarget.guid); 
@@ -172,8 +171,7 @@ package mma.view.main
 					break;
 					
 			}
-			e.currentTarget.drawBorder(e.value);
-				
+			e.currentTarget.drawBorder(e.value);	
 		}			
 		
 		private function onRemoveLargeImageHandler(event:StringEvent):void
@@ -184,7 +182,6 @@ package mma.view.main
 			
 			for(i = 0; i < len; i++)
 			{
-				//var pic:LargePictureItem = largeContainer.getChildAt(i) as LargePictureItem; 
 				var pic:RotatableScalable = largeContainer.getChildAt(i) as RotatableScalable;
 				if(pic.guid == event.str)
 				{
@@ -211,16 +208,12 @@ package mma.view.main
 				}
 			}
 		}
-		private function onImagesUpdatedHandler(event:Event):void
-		{
-			event.stopImmediatePropagation(); 
-		}
+		
 		private function onImageDataLoadedHandler(event:Event):void
 		{
 		 	event.stopImmediatePropagation(); 	 
 			adapter = new DataAdapter(flickrModel.images); 
 			adapter.addEventListener("AddedImage", onAddImageHandler); 
-			adapter.addEventListener("ImagesUpdated", onImagesUpdatedHandler);
 			
 			var xpos:int = 1;
 			var ypos:int = 1; 

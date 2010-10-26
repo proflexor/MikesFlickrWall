@@ -29,6 +29,7 @@ package mma.control.flickrControl
 			service.secret = flickrModel.secret;
 			service.token = flickrModel.token;
 			service.permission = flickrModel.permission; 
+			service.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
 			service.addEventListener(FlickrResultEvent.PHOTOS_SEARCH, onPhotosSearchHandler);
 			//service.addEventListener(FlickrResultEvent.GROUPS_POOLS_GET_GROUPS, onGetGroupListHandler); 
 			
@@ -36,7 +37,7 @@ package mma.control.flickrControl
 			//photos.search("53381288@N06");
 			
 			service.addEventListener(FlickrResultEvent.INTERESTINGNESS_GET_LIST, onGetInterestingListHandler);
-			service.interestingness.getList(new Date("09/26/2010"), "", 265, 1);
+			service.interestingness.getList(new Date("9/20/2010"), "", 265, 1);
 			
 			/*var groups:Groups = new Groups(service); 
 			groups.pools.getGroups(); */
@@ -115,7 +116,7 @@ package mma.control.flickrControl
 		
 		private function onIOError(event:IOErrorEvent):void					// added because of unhandled IOError
 		{
-			removeEventListener(IOErrorEvent.IO_ERROR, onIOError);
+//			removeEventListener(IOErrorEvent.IO_ERROR, onIOError);
 			trace("IOError" + event);
 			//TODO
 		}

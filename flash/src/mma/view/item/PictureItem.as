@@ -143,32 +143,30 @@ package mma.view.item
 				g.lineStyle(10, 0x000000, .8, false, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.MITER); 
 				g.drawRect(6, 6, itemW - 10, itemH - 10);
 				
-				
-				
-			/* 	
-				g.beginFill(0x000000, .9); 
-				g.drawRect(0, 0, itemW, itemH);
-				g.beginFill(0x000000, .7); 
-				g.drawRect(5, 5, itemW - 10, itemH - 10);
-				
-				
-				 */
-				
-				
-				
-				
 			}
 		}
 		
 		private function onIOError(event:IOErrorEvent):void
 		{
-			trace(event);
+			trace("onIOError", event.text);
 		}
 		
 		private function onSizeLoadedHandler(event:Event):void
 		{
 			event.stopImmediatePropagation(); 
-			loader.load(new URLRequest(photoData.square.source)); 
+			try{
+				if(photoData.square.source)
+				{
+					loader.load(new URLRequest(photoData.square.source)); 
+				}
+				else
+				{
+					throw new IOErrorEvent(IOErrorEvent.IO_ERROR);
+				}
+			}
+			catch(event:IOErrorEvent){
+				trace("An IO Error has occurred and it looks like this: " + event.text);
+			}
 			
 			trace("photoData.square.source  : " + photoData.square.source); 
 			
@@ -181,12 +179,9 @@ package mma.view.item
 			container.removeChild(preloader); 
 			//container = new Sprite(); 
 			
-//			loader.content.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler);
 			loader.content.addEventListener(TouchEvent.TOUCH_DOWN, onTouchDownHandler);
-//			loader.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler); 
 			loader.addEventListener(TouchEvent.TOUCH_DOWN, onTouchDownHandler); 
 			container.addChild(loader); 
-//			container.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchDownHandler); 
 			container.addEventListener(TouchEvent.TOUCH_DOWN, onTouchDownHandler); 
 			
 			this.cacheAsBitmap = true; 
@@ -194,13 +189,7 @@ package mma.view.item
 			loader.cacheAsBitmap = true; 
 			loader.content.cacheAsBitmap = true; 
 			
-			
-			
 			addEventListener(TouchEvent.TOUCH_DOWN, onTouchDownHandler); 
-
-			//addEventListener(MouseEvent.CLICK, onMouseClickHandler); 
-			
-			//GetPixels(); 
 		}
 		
 		private function onTouchDownHandler(event:TouchEvent):void
@@ -271,7 +260,20 @@ package mma.view.item
 		{
 			loader.contentLoaderInfo.removeEventListener(Event.COMPLETE, onLoaderComplete);
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoaderSamllImageComplete);
-			loader.load(new URLRequest(photoData.small.source));
+			loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
+			try{
+				if(photoData.small.source)
+				{
+					loader.load(new URLRequest(photoData.small.source));
+				}
+				else
+				{
+					throw new IOErrorEvent(IOErrorEvent.IO_ERROR);
+				}
+			}
+			catch(event:IOErrorEvent){
+				trace("An IO Error has occurred and it looks like this: " + event.text);
+			}
 		}
 		private function onLoaderSamllImageComplete(event:Event):void
 		{
